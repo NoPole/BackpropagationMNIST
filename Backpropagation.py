@@ -8,13 +8,17 @@
 # tweaked a few parameters
 
 
-
+# read in the data files and format as needed
 import LoadData
 training_data, validation_data, test_data = LoadData.load_data_wrapper()
 
 
 
-
+# create the network
 import Network
-net = Network.Network([784, 30, 10])
-net.sgd(training_data, 100, 10, 2.0, test_data=test_data)
+net = Network.Network([784, 30, 10])  # layer sizes ( input, hidden, output )
+
+epochs = 40        # number of passes through full data set
+batch_size = 10     # size of batches, network updated once per batch
+alpha = 2.0         # learning step
+net.sgd(training_data, epochs, batch_size, alpha, test_data=test_data) # train epochs, batch size, alpha
