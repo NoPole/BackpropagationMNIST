@@ -1,5 +1,5 @@
 # backpropagationMNIST
-Python 3 version of chapter 1 code in http://neuralnetworksanddeeplearning.html
+Python 3 version of chapter 1, 3 code in http://neuralnetworksanddeeplearning.html
 
 See the website for his licensing
 
