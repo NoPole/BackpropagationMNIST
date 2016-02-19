@@ -32,14 +32,22 @@ class Network(object):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
+        
+        # init with random Guassian, mean 0 stdv 1
+        # self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]  #original
+        
+        # init with sqrt of random Guassian, mean 0, stdv 1
+        self.weights = [np.random.randn(y, x)/np.sqrt(x) for x, y in zip(self.sizes[:-1], self.sizes[1:])]
+
     
     
     
     # cost functions
-    # quadratic cost function
-    def cost_derivative(self, output_activations, y):
-        return ( output_activations - y )
+    def cost (self, a, y):
+        return (a - y)
+        
+        
+   
             
     
       
@@ -61,7 +69,7 @@ class Network(object):
     # epoch - all of the training samples pass through in one epoch 
     # optional test data - lets you see progress but slows things down
     # mini_batch_size is the number of training examples per pass   
-    def sgd ( self, training_data, epochs, mini_batch_size, eta, test_data=None ):
+    def sgd ( self, training_data, epochs, mini_batch_size, eta, lmbda, test_data=None ):
             
         # if test data provided print progress, slows things down a lot
         # convert to a list, otherwise python 3 has no way to check length 
@@ -81,7 +89,8 @@ class Network(object):
                 
             # update the network once per batch 
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta) 
+                #self.update_mini_batch(mini_batch, eta) 
+                 self.update_mini_batch(mini_batch, eta, lmbda, n)
                     
             # if test data is provided, print the progress        
             if test_data:
@@ -95,7 +104,7 @@ class Network(object):
     # update weights and biases using gradient descent on a single batch
     # eta is the learning rate
     # nabla == gradient for this batch
-    def update_mini_batch(self, mini_batch, eta):
+    def update_mini_batch(self, mini_batch, eta, lmbda, n):
      
         # temporary storage 
         nabla_b = [np.zeros(b.shape) for b in self.biases]
@@ -107,8 +116,13 @@ class Network(object):
             nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
             
-        # adjust the weights and biases    
-        self.weights = [w - (eta / len(mini_batch)) * nw for w, nw in zip(self.weights, nabla_w)]
+        # adjust the weights and biases  
+        # no regularization  
+        #self.weights = [w - (eta / len(mini_batch)) * nw for w, nw in zip(self.weights, nabla_w)]
+        
+        # add regularization
+        self.weights = [(1 - eta * (lmbda/n)) * w - (eta/len(mini_batch)) * nw for w, nw in zip(self.weights, nabla_w) ]
+        
         self.biases = [b - (eta / len(mini_batch)) * nb for b, nb in zip(self.biases, nabla_b)]
         
         
@@ -136,7 +150,10 @@ class Network(object):
             
         # push errors backwards through the network
         # output layer error equation - matrix form of partial derivative of cost function
-        delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(zs[-1]) 
+        
+        #delta = self.cost(activations[-1], y) * sigmoid_prime(zs[-1])      # quadratic
+        delta = self.cost(activations[-1], y)                               # cross entropy
+
 
         nabla_b[-1] = delta                 # amount to change biases
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())  # amount to change weights ( error * output)
@@ -155,5 +172,18 @@ class Network(object):
         
        
     
-     
+### Loading a Network
+def load(filename):
+    """Load a neural network from the file ``filename``.  Returns an
+    instance of Network.
+
+    """
+    f = open(filename, "r")
+    data = json.load(f)
+    f.close()
+    cost = getattr(sys.modules[__name__], data["cost"])
+    net = Network(data["sizes"], cost=cost)
+    net.weights = [np.array(w) for w in data["weights"]]
+    net.biases = [np.array(b) for b in data["biases"]]
+    return net     
      
