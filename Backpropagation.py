@@ -14,7 +14,27 @@ training_data, validation_data, test_data = LoadData.load_data_wrapper()
 
 
 
+########## multi layer network ######################################################
+#~ 97% accurate
+import MultiLayer
+
+
+# create the network
+net = MultiLayer.Network([784, 30, 30, 10])  # layer sizes ( input, hidden, output )
+
+epochs = 40        # number of passes through full data set
+batch_size = 10     # size of batches, network updated once per batch
+alpha = 0.1         # learning step
+lmbda = 5.0         # regularization 
+net.sgd(training_data, epochs, batch_size, alpha, lmbda, test_data=test_data) # train epochs, batch size, alpha
+
+
+
+
+
 ########## second network ######################################################
+# ~ 96 % accurate
+"""
 import ImprovedNetwork
 
 
@@ -23,13 +43,14 @@ net = ImprovedNetwork.Network([784, 30, 10])  # layer sizes ( input, hidden, out
 
 epochs = 30        # number of passes through full data set
 batch_size = 10     # size of batches, network updated once per batch
-alpha = 1.0         # learning step
+alpha = 0.1         # learning step
 lmbda = 5.0         # regularization 
 net.sgd(training_data, epochs, batch_size, alpha, lmbda, test_data=test_data) # train epochs, batch size, alpha
-
+"""
 
 
 ##########  first network ######################################################
+# ~ 94% accurate
 """
 # create the network
 import Network
