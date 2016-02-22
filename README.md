@@ -6,3 +6,7 @@ See the website for his licensing
 This is a beginner's backpropagation neural network that reads in MNIST data and learns to read it with abouty 95% accuracy. See his website for the book, source and data files.
 
 I've converted his code to a working Python 3 version but it needs a lot of tuning and clean up to be really useful.
+
+
+Use Backpropagation to run the Network, ImprovedNetwork or MultiLayer networks
+Use RunConvolutional to run the Convolutional network
