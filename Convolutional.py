@@ -71,7 +71,7 @@ class Network(object):
 
         self.layers = layers
         self.mini_batch_size = mini_batch_size
-        self.params = [param for layer in self.layers for parm in layer.params]
+        self.params = [param for layer in self.layers for param in layer.params]
         self.x = T.matrix("x")
         self.y = T.ivector("y")
         
@@ -187,16 +187,20 @@ class ConvPoolLayer(object):
             n_out = (filter_shape[0] * np.prod(filter_shape[2:]) / np.prod(poolsize))
             self.w = theano.shared( np.asarray(np.random.normal(loc=0, scale=np.sqrt(1.0 / n_out),
                                         size=filter_shape), dtype=theano.config.floatX), borrow=True)
+            self.b = theano.shared( np.asarray(np.random.normal(loc=0, scale=np.sqrt(1.0/n_out), size=filter_shape), 
+                                        dtype=theano.config.floatX), borrow=True)
             self.params = [self.w, self.b]
                 
                 
         def set_inpt(self, inpt, inpt_dropout, mini_batch_size):
         
             self.inpt = inpt.reshape(self.image_shape)
-            conv_out = conv.conv2d( input=self.inpt, filters=self.w, 
+            conv_out = conv.conv2d( input=self.inpt, 
+                                    filters=self.w, 
                                     filter_shape=self.filter_shape, 
                                     image_shape=self.image_shape )
-            pooled_out = downsample.max_pool_2d( input-conv_out, ds=self.poolsize, ignore_border=True)
+            pooled_out = downsample.max_pool_2d( input=conv_out, ds=self.poolsize, ignore_border=True)
+########### ? idk 'You cannot drop a non-broadcastable dimension' ############################################
             self.output = self.activation_fn( pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
             self.output_dropout = self.output   # no dropout this layer
             
@@ -208,7 +212,7 @@ class FullyConnectedLayer(object):
             self.n_in = n_in
             self.n_out = n_out
             self.activation_fn = activation_fn
-            self.p_dropout = p_droput
+            self.p_dropout = p_dropout
             
             # init weights and bias
             self.w = theano.shared( np.asarray(np.random.normal(loc=0.0, scale=np.sqrt(1.0/n_out), 

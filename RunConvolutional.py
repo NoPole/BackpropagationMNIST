@@ -12,7 +12,9 @@ import theano
 import theano.tensor as T
 
 import Convolutional
-from Convolutional import sigmoid, ReLU, Network
+from Convolutional import sigmoid, ReLU, tanh, Network
+from Convolutional import ConvPoolLayer, FullyConnectedLayer, SoftmaxLayer
+
 
 mini_batch_size = 10
 
